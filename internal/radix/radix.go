@@ -263,17 +263,16 @@ func (n *Node) getEdge(label byte, matchParam bool) *Node {
 
 // getCommonPrefix returns the length of the longest common prefix between two strings
 func getCommonPrefix(k1, k2 string) int {
-	maxL := len(k1)
-	if l := len(k2); l < maxL {
-		maxL = l
+	maxLen := len(k1)
+	if len(k2) < maxLen {
+		maxLen = len(k2)
 	}
-	var i int
-	for i = 0; i < maxL; i++ {
+	for i := 0; i < maxLen; i++ {
 		if k1[i] != k2[i] {
-			break
+			return i
 		}
 	}
-	return i
+	return maxLen
 }
 
 // GetAllCompleteItems returns all complete items in the tree
