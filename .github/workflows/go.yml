@@ -36,9 +36,13 @@ jobs:
     - name: Test
       run: go test -v ./...
 
-    - name: Benchmark
+    - name: Build Example
       run: |
-        go test -bench=. -benchmem ./... | tee bench.txt
+        cd examples
+        GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o bootstrap example.go
+
+    - name: Benchmark
+      run: go test -bench=. -benchmem ./... | tee bench.txt
 
     - name: Upload benchmark results
       uses: actions/upload-artifact@v3
