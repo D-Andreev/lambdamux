@@ -1,4 +1,15 @@
-# lambdamux
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#232F3E;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF9900;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <text x="200" y="80" font-family="'Space Mono', 'Courier New', monospace" font-size="56" font-weight="bold" fill="url(#grad)" text-anchor="middle">
+    Lambda<tspan fill="#FF9900">Mux</tspan>
+  </text>
+  <text x="200" y="100" font-family="'Space Mono', 'Courier New', monospace" font-size="14" fill="#8C8C8C" text-anchor="middle">HTTP Router for AWS Lambda</text>
+</svg>
 
 [![Test](https://github.com/D-Andreev/lambdamux/actions/workflows/test.yml/badge.svg)](https://github.com/D-Andreev/lambdamux/actions/workflows/test.yml)
 [![GoDoc](https://godoc.org/github.com/D-Andreev/lambdamux?status.svg)](https://godoc.org/github.com/D-Andreev/lambdamux)
@@ -151,16 +162,15 @@ To run the example locally:
 
 ##  Benchmarks
  
+Benchmarks can be run with `make benchmark` and the full benchmark code can be found [here](https://github.com/D-Andreev/lambdamux/blob/main/lambdamux_benchmark_test.go).
+The router used in the benchmarks consists of 50 routes in total, some static and some dynamic.
 The following table shows the benchmark results for `lambdamux` compared to other popular routers, including those using `aws-lambda-go-api-proxy`:
 
 | Benchmark | Operations | Time per Operation | Bytes per Operation | Allocations per Operation | Using aws-lambda-go-api-proxy | % Slower than LambdaMux |
 |-----------|------------|---------------------|---------------------|---------------------------|-------------------------------|--------------------------|
-| LambdaMux | 535,137 | 2,229 ns/op | 1,852 B/op | 29 allocs/op | No | 0% |
-| LmdRouter | 508,597 | 2,329 ns/op | 1,615 B/op | 25 allocs/op | No | 4.49% |
-| AWSLambdaGoAPIProxyWithGin | 372,218 | 3,169 ns/op | 3,430 B/op | 38 allocs/op | Yes | 42.17% |
-| AWSLambdaGoAPIProxyWithChi | 348,360 | 3,394 ns/op | 3,786 B/op | 40 allocs/op | Yes | 52.27% |
-| AWSLambdaGoAPIProxyWithFiber | 259,388 | 4,572 ns/op | 5,770 B/op | 52 allocs/op | Yes | 105.11% |
+| LambdaMux | 382,891 | 3,134 ns/op | 2,444 B/op | 40 allocs/op | No | 0% |
+| [LmdRouter](https://github.com/aquasecurity/lmdrouter) | 320,187 | 3,701 ns/op | 2,086 B/op | 34 allocs/op | No | 18.09% |
+| [AWSLambdaGoAPIProxyWithGin](https://github.com/gin-gonic/gin) | 289,932 | 4,081 ns/op | 3,975 B/op | 47 allocs/op | Yes | 30.22% |
+| [AWSLambdaGoAPIProxyWithChi](https://github.com/go-chi/chi) | 268,380 | 4,384 ns/op | 4,304 B/op | 49 allocs/op | Yes | 39.89% |
+| [AWSLambdaGoAPIProxyWithFiber](https://github.com/gofiber/fiber) | 210,759 | 5,603 ns/op | 6,324 B/op | 61 allocs/op | Yes | 78.78% |
 
-`lambdamux` performs competitively, being slightly faster than LmdRouter and using marginally more memory. It's much faster than using `aws-lambda-go-api-proxy` with Gin, Fiber, and Chi.
-
-Benchmarks can be run with `make benchmark` and the full benchmark code can be found [here](https://github.com/D-Andreev/lambdamux/blob/main/lambdamux_benchmark_test.go).

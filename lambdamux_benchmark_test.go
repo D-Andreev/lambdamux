@@ -43,6 +43,41 @@ var routes = []struct {
 	{"GET", "/user/:username"},
 	{"PUT", "/user/:username"},
 	{"DELETE", "/user/:username"},
+	{"GET", "/pet/:petId/medical-history"},
+	{"POST", "/pet/:petId/vaccination"},
+	{"GET", "/store/order/:orderId/tracking"},
+	{"PUT", "/store/order/:orderId/status"},
+	{"GET", "/user/:username/preferences"},
+	{"POST", "/user/:username/address"},
+	{"GET", "/pet/:petId/appointments"},
+	{"POST", "/pet/:petId/appointment"},
+	{"PUT", "/pet/:petId/appointment/:appointmentId"},
+	{"DELETE", "/pet/:petId/appointment/:appointmentId"},
+	{"GET", "/store/products"},
+	{"GET", "/store/product/:productId"},
+	{"POST", "/store/product"},
+	{"PUT", "/store/product/:productId"},
+	{"DELETE", "/store/product/:productId"},
+	{"GET", "/user/:username/orders"},
+	{"POST", "/user/:username/review"},
+	{"GET", "/user/:username/review/:reviewId"},
+	{"PUT", "/user/:username/review/:reviewId"},
+	{"DELETE", "/user/:username/review/:reviewId"},
+	{"GET", "/clinic/:clinicId"},
+	{"POST", "/clinic"},
+	{"PUT", "/clinic/:clinicId"},
+	{"DELETE", "/clinic/:clinicId"},
+	{"GET", "/clinic/:clinicId/staff"},
+	{"POST", "/clinic/:clinicId/staff"},
+	{"GET", "/clinic/:clinicId/staff/:staffId"},
+	{"PUT", "/clinic/:clinicId/staff/:staffId"},
+	{"DELETE", "/clinic/:clinicId/staff/:staffId"},
+	{"GET", "/clinic/:clinicId/appointments"},
+	{"POST", "/clinic/:clinicId/appointment/:appointmentId/reschedule"},
+}
+
+var allParams = []string{
+	"petId", "orderId", "username", "appointmentId", "productId", "reviewId", "clinicId", "staffId",
 }
 
 func setupLambdaMux() *LambdaMux {
@@ -84,13 +119,14 @@ func ginCreateHandler(method, path string) gin.HandlerFunc {
 		responseBody := map[string]interface{}{
 			"message": "Handled " + method + " request for " + path,
 		}
-		params := c.Params
-		if len(params) > 0 {
-			paramMap := make(map[string]string)
-			for _, param := range params {
-				paramMap[param.Key] = param.Value
+		params := make(map[string]string)
+		for _, param := range allParams {
+			if value := c.Param(param); value != "" {
+				params[param] = value
 			}
-			responseBody["params"] = paramMap
+		}
+		if len(params) > 0 {
+			responseBody["params"] = params
 		}
 		c.JSON(200, responseBody)
 	}
@@ -109,7 +145,12 @@ func fiberCreateHandler(method, path string) fiber.Handler {
 		responseBody := map[string]interface{}{
 			"message": "Handled " + method + " request for " + path,
 		}
-		params := c.AllParams()
+		params := make(map[string]string)
+		for _, param := range allParams {
+			if value := c.Params(param); value != "" {
+				params[param] = value
+			}
+		}
 		if len(params) > 0 {
 			responseBody["params"] = params
 		}
@@ -122,7 +163,7 @@ func setupChiRouter() *chi.Mux {
 	for _, route := range routes {
 		// Convert :param to {param} for Chi router
 		chiPath := route.path
-		for _, param := range []string{"petId", "orderId", "username"} {
+		for _, param := range allParams {
 			chiPath = strings.Replace(chiPath, ":"+param, "{"+param+"}", -1)
 		}
 		r.MethodFunc(route.method, chiPath, chiCreateHandler(route.method, route.path))
@@ -137,10 +178,9 @@ func chiCreateHandler(method, path string) http.HandlerFunc {
 		}
 
 		params := make(map[string]string)
-		rctx := chi.RouteContext(r.Context())
-		if rctx != nil {
-			for i, key := range rctx.URLParams.Keys {
-				params[key] = rctx.URLParams.Values[i]
+		for _, param := range allParams {
+			if value := chi.URLParam(r, param); value != "" {
+				params[param] = value
 			}
 		}
 
@@ -198,6 +238,37 @@ var benchmarkRequests = []events.APIGatewayProxyRequest{
 	{HTTPMethod: "GET", Path: "/user/johndoe", PathParameters: map[string]string{"username": "johndoe"}},
 	{HTTPMethod: "PUT", Path: "/user/janedoe", PathParameters: map[string]string{"username": "janedoe"}},
 	{HTTPMethod: "DELETE", Path: "/user/bobsmith", PathParameters: map[string]string{"username": "bobsmith"}},
+	{HTTPMethod: "GET", Path: "/pet/404/medical-history", PathParameters: map[string]string{"petId": "404"}},
+	{HTTPMethod: "POST", Path: "/pet/505/vaccination", PathParameters: map[string]string{"petId": "505"}},
+	{HTTPMethod: "GET", Path: "/store/order/606/tracking", PathParameters: map[string]string{"orderId": "606"}},
+	{HTTPMethod: "PUT", Path: "/store/order/707/status", PathParameters: map[string]string{"orderId": "707"}},
+	{HTTPMethod: "GET", Path: "/user/alicesmith/preferences", PathParameters: map[string]string{"username": "alicesmith"}},
+	{HTTPMethod: "POST", Path: "/user/bobdoe/address", PathParameters: map[string]string{"username": "bobdoe"}},
+	{HTTPMethod: "GET", Path: "/pet/808/appointments", PathParameters: map[string]string{"petId": "808"}},
+	{HTTPMethod: "POST", Path: "/pet/909/appointment", PathParameters: map[string]string{"petId": "909"}},
+	{HTTPMethod: "PUT", Path: "/pet/1010/appointment/2020", PathParameters: map[string]string{"petId": "1010", "appointmentId": "2020"}},
+	{HTTPMethod: "DELETE", Path: "/pet/1111/appointment/2121", PathParameters: map[string]string{"petId": "1111", "appointmentId": "2121"}},
+	{HTTPMethod: "GET", Path: "/store/products"},
+	{HTTPMethod: "GET", Path: "/store/product/3030", PathParameters: map[string]string{"productId": "3030"}},
+	{HTTPMethod: "POST", Path: "/store/product"},
+	{HTTPMethod: "PUT", Path: "/store/product/4040", PathParameters: map[string]string{"productId": "4040"}},
+	{HTTPMethod: "DELETE", Path: "/store/product/5050", PathParameters: map[string]string{"productId": "5050"}},
+	{HTTPMethod: "GET", Path: "/user/charlielee/orders", PathParameters: map[string]string{"username": "charlielee"}},
+	{HTTPMethod: "POST", Path: "/user/davidwang/review", PathParameters: map[string]string{"username": "davidwang"}},
+	{HTTPMethod: "GET", Path: "/user/evebrown/review/6060", PathParameters: map[string]string{"username": "evebrown", "reviewId": "6060"}},
+	{HTTPMethod: "PUT", Path: "/user/frankgreen/review/7070", PathParameters: map[string]string{"username": "frankgreen", "reviewId": "7070"}},
+	{HTTPMethod: "DELETE", Path: "/user/gracewu/review/8080", PathParameters: map[string]string{"username": "gracewu", "reviewId": "8080"}},
+	{HTTPMethod: "GET", Path: "/clinic/9090", PathParameters: map[string]string{"clinicId": "9090"}},
+	{HTTPMethod: "POST", Path: "/clinic"},
+	{HTTPMethod: "PUT", Path: "/clinic/1212", PathParameters: map[string]string{"clinicId": "1212"}},
+	{HTTPMethod: "DELETE", Path: "/clinic/1313", PathParameters: map[string]string{"clinicId": "1313"}},
+	{HTTPMethod: "GET", Path: "/clinic/1414/staff", PathParameters: map[string]string{"clinicId": "1414"}},
+	{HTTPMethod: "POST", Path: "/clinic/1515/staff", PathParameters: map[string]string{"clinicId": "1515"}},
+	{HTTPMethod: "GET", Path: "/clinic/1616/staff/1717", PathParameters: map[string]string{"clinicId": "1616", "staffId": "1717"}},
+	{HTTPMethod: "PUT", Path: "/clinic/1818/staff/1919", PathParameters: map[string]string{"clinicId": "1818", "staffId": "1919"}},
+	{HTTPMethod: "DELETE", Path: "/clinic/2020/staff/2121", PathParameters: map[string]string{"clinicId": "2020", "staffId": "2121"}},
+	{HTTPMethod: "GET", Path: "/clinic/2222/appointments", PathParameters: map[string]string{"clinicId": "2222"}},
+	{HTTPMethod: "POST", Path: "/clinic/2323/appointment/2424/reschedule", PathParameters: map[string]string{"clinicId": "2323", "appointmentId": "2424"}},
 }
 
 func assertResponse(b *testing.B, resp events.APIGatewayProxyResponse, req events.APIGatewayProxyRequest) {
@@ -228,6 +299,17 @@ func BenchmarkLambdaMux(b *testing.B) {
 	}
 }
 
+func BenchmarkLmdRouter(b *testing.B) {
+	router := setupLmdRouter()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		req := benchmarkRequests[i%len(benchmarkRequests)]
+		resp, err := router.Handler(context.Background(), req)
+		assert.NoError(b, err)
+		assertResponse(b, resp, req)
+	}
+}
+
 func BenchmarkAWSLambdaGoAPIProxyWithGin(b *testing.B) {
 	r := setupGinRouter()
 	adapter := ginadapter.New(r)
@@ -247,17 +329,6 @@ func BenchmarkAWSLambdaGoAPIProxyWithFiber(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		req := benchmarkRequests[i%len(benchmarkRequests)]
 		resp, err := adapter.ProxyWithContext(context.Background(), req)
-		assert.NoError(b, err)
-		assertResponse(b, resp, req)
-	}
-}
-
-func BenchmarkLmdRouter(b *testing.B) {
-	router := setupLmdRouter()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		req := benchmarkRequests[i%len(benchmarkRequests)]
-		resp, err := router.Handler(context.Background(), req)
 		assert.NoError(b, err)
 		assertResponse(b, resp, req)
 	}
