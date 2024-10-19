@@ -1,6 +1,6 @@
 # lambdamux
 
-`lambdamux` is a simple and lightweight high performance HTTP router specifically designed for AWS Lambda functions handling API Gateway requests. 
+A simple and lightweight high performance HTTP router specifically designed for AWS Lambda functions handling API Gateway requests. 
 
 ## Features
 - Fast and efficient routing with static and dynamic route support
