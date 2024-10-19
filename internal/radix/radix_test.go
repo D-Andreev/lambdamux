@@ -703,3 +703,18 @@ func TestInsertConflictParams(t *testing.T) {
 
 	assert.Nil(t, n)
 }
+
+func TestSearchConflictStaticAndParam(t *testing.T) {
+	tree := NewNode("", false)
+
+	tree.Insert("GET /users/:id")
+	tree.Insert("GET /users/history")
+
+	result, _ := tree.Search("GET /users/history")
+	assert.NotNil(t, result)
+	assert.Equal(t, "GET /users/history", result.fullValue)
+
+	result, _ = tree.Search("GET /users/123")
+	assert.NotNil(t, result)
+	assert.Equal(t, "GET /users/:id", result.fullValue)
+}
