@@ -19,7 +19,9 @@ jobs:
         go-version-file: 'go.mod'
 
     - name: Build
-      run: go build -v -o lambdamux ./...
+      run: |
+        mkdir -p build
+        go build -v -o build/lambdamux ./...
 
     - name: Run tests
       run: go test -v ./...
@@ -71,6 +73,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./lambdamux
+        asset_path: ./build/lambdamux
         asset_name: lambdamux
         asset_content_type: application/octet-stream
