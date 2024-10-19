@@ -164,13 +164,12 @@ To run the example locally:
  
 Benchmarks can be run with `make benchmark` and the full benchmark code can be found [here](https://github.com/D-Andreev/lambdamux/blob/main/lambdamux_benchmark_test.go).
 The router used in the benchmarks consists of 50 routes in total, some static and some dynamic.
-The following table shows the benchmark results for `lambdamux` compared to other popular routers, including those using `aws-lambda-go-api-proxy`:
 
-| Benchmark | Operations | Time per Operation | Bytes per Operation | Allocations per Operation | Using aws-lambda-go-api-proxy | % Slower than LambdaMux |
-|-----------|------------|---------------------|---------------------|---------------------------|-------------------------------|--------------------------|
-| LambdaMux | 382,891 | 3,134 ns/op | 2,444 B/op | 40 allocs/op | No | 0% |
-| [LmdRouter](https://github.com/aquasecurity/lmdrouter) | 320,187 | 3,701 ns/op | 2,086 B/op | 34 allocs/op | No | 18.09% |
-| [AWSLambdaGoAPIProxyWithGin](https://github.com/gin-gonic/gin) | 289,932 | 4,081 ns/op | 3,975 B/op | 47 allocs/op | Yes | 30.22% |
-| [AWSLambdaGoAPIProxyWithChi](https://github.com/go-chi/chi) | 268,380 | 4,384 ns/op | 4,304 B/op | 49 allocs/op | Yes | 39.89% |
-| [AWSLambdaGoAPIProxyWithFiber](https://github.com/gofiber/fiber) | 210,759 | 5,603 ns/op | 6,324 B/op | 61 allocs/op | Yes | 78.78% |
+| Benchmark                                                                | Operations | Time per Operation | Bytes per Operation | Allocations per Operation | Using aws-lambda-go-api-proxy | % Slower than LambdaMux |
+|--------------------------------------------------------------------------|------------|---------------------|---------------------|---------------------------|-------------------------------|--------------------------|
+| LambdaMux                                                                | 382,891    | 3,134 ns/op         | 2,444 B/op          | 40 allocs/op              | No                            | 0%                       |
+| [LmdRouter](https://github.com/aquasecurity/lmdrouter)                   | 320,187    | 3,701 ns/op         | 2,086 B/op          | 34 allocs/op              | No                            | 18.09%                   |
+| [Gin](https://github.com/gin-gonic/gin)                                  | 289,932    | 4,081 ns/op         | 3,975 B/op          | 47 allocs/op              | Yes                           | 30.22%                   |
+| [Chi](https://github.com/go-chi/chi)                                     | 268,380    | 4,384 ns/op         | 4,304 B/op          | 49 allocs/op              | Yes                           | 39.89%                   |
+| [Fiber](https://github.com/gofiber/fiber)                                | 210,759    | 5,603 ns/op         | 6,324 B/op          | 61 allocs/op              | Yes                           | 78.78%                   |
 
