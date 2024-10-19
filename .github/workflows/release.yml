@@ -37,24 +37,24 @@ jobs:
 
     - name: Get merged PR
       id: get-pr
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        PR_NUMBER=$(gh pr list --base main --state merged --limit 1 --json number --jq '.[0].number')
-        echo "::set-output name=pr_number::$PR_NUMBER"
+        PR_NUMBER=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/pulls?state=closed&base=main&sort=updated&direction=desc&per_page=1" | \
+          jq '.[0].number')
+        echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
 
     - name: Determine version bump
       id: bump
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        PR_LABELS=$(gh pr view ${{ steps.get-pr.outputs.pr_number }} --json labels --jq '.labels[].name')
+        PR_LABELS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/pulls/${{ steps.get-pr.outputs.pr_number }}" | \
+          jq '.labels[].name')
         if echo "$PR_LABELS" | grep -q "major"; then
-          echo "::set-output name=bump::major"
+          echo "bump=major" >> $GITHUB_OUTPUT
         elif echo "$PR_LABELS" | grep -q "minor"; then
-          echo "::set-output name=bump::minor"
+          echo "bump=minor" >> $GITHUB_OUTPUT
         else
-          echo "::set-output name=bump::patch"
+          echo "bump=patch" >> $GITHUB_OUTPUT
         fi
 
     - name: Bump version and push tag
