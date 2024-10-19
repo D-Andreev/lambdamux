@@ -1,18 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 120">
-  <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#232F3E;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#FF9900;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  <text x="200" y="80" font-family="'Space Mono', 'Courier New', monospace" font-size="56" font-weight="bold" fill="url(#grad)" text-anchor="middle">
-    Lambda<tspan fill="#FF9900">Mux</tspan>
-  </text>
-  <text x="200" y="100" font-family="'Space Mono', 'Courier New', monospace" font-size="14" fill="#8C8C8C" text-anchor="middle">HTTP Router for AWS Lambda</text>
-</svg>
+<img src="https://github-production-user-asset-6210df.s3.amazonaws.com/4354425/378097448-5d1e51ca-794b-4b98-94ea-887e0687154c.svg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20241019%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241019T152501Z&X-Amz-Expires=300&X-Amz-Signature=14d90a7bb4d3e75621080b6da7a7a8531bdc5f2ba4b690de7b098c408b16f642&X-Amz-SignedHeaders=host" alt="LambdaMux logo">
 
-[![Test](https://github.com/D-Andreev/lambdamux/actions/workflows/test.yml/badge.svg)](https://github.com/D-Andreev/lambdamux/actions/workflows/test.yml)
-[![GoDoc](https://godoc.org/github.com/D-Andreev/lambdamux?status.svg)](https://godoc.org/github.com/D-Andreev/lambdamux)
+<p align="center">
+  <a href="https://github.com/D-Andreev/lambdamux/actions/workflows/test.yml">
+    <img src="https://github.com/D-Andreev/lambdamux/actions/workflows/test.yml/badge.svg" alt="Test">
+  </a>
+  <a href="https://godoc.org/github.com/D-Andreev/lambdamux">
+    <img src="https://godoc.org/github.com/D-Andreev/lambdamux?status.svg" alt="GoDoc">
+  </a>
+</p>
 
 A simple and lightweight high performance HTTP router specifically designed for AWS Lambda functions handling API Gateway requests. 
 
