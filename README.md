@@ -1,6 +1,7 @@
 # lambdamux
 
 [![Test](https://github.com/D-Andreev/lambdamux/actions/workflows/test.yml/badge.svg)](https://github.com/D-Andreev/lambdamux/actions/workflows/test.yml)
+[![GoDoc](https://godoc.org/github.com/D-Andreev/lambdamux?status.svg)](https://godoc.org/github.com/D-Andreev/lambdamux)
 
 A simple and lightweight high performance HTTP router specifically designed for AWS Lambda functions handling API Gateway requests. 
 
