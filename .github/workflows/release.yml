@@ -1,0 +1,76 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: '1.19'
+
+    - name: Build
+      run: go build -v -o lambdamux ./...
+
+    - name: Run tests
+      run: go test -v ./...
+
+    - name: Get merged PR
+      id: get-pr
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        PR_NUMBER=$(gh pr list --base main --state merged --limit 1 --json number --jq '.[0].number')
+        echo "::set-output name=pr_number::$PR_NUMBER"
+
+    - name: Determine version bump
+      id: bump
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        PR_LABELS=$(gh pr view ${{ steps.get-pr.outputs.pr_number }} --json labels --jq '.labels[].name')
+        if echo "$PR_LABELS" | grep -q "major"; then
+          echo "::set-output name=bump::major"
+        elif echo "$PR_LABELS" | grep -q "minor"; then
+          echo "::set-output name=bump::minor"
+        else
+          echo "::set-output name=bump::patch"
+        fi
+
+    - name: Bump version and push tag
+      id: tag_version
+      uses: anothrNick/github-tag-action@1.35.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        DEFAULT_BUMP: ${{ steps.bump.outputs.bump }}
+        WITH_V: true
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.tag_version.outputs.new_tag }}
+        release_name: Release ${{ steps.tag_version.outputs.new_tag }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./lambdamux
+        asset_name: lambdamux
+        asset_content_type: application/octet-stream

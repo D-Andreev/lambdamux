@@ -1,4 +1,4 @@
-package router
+package lambdamux
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 )
 
 func TestRouter(t *testing.T) {
-	router := NewRouter()
+	router := NewLambdaMux()
 
 	router.POST("/pet", createHandler("POST", "/pet"))
 	router.PUT("/pet", createHandler("PUT", "/pet"))
