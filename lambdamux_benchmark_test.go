@@ -72,6 +72,8 @@ var routes = []struct {
 	{"GET", "/clinic/:clinicId/staff/:staffId"},
 	{"PUT", "/clinic/:clinicId/staff/:staffId"},
 	{"DELETE", "/clinic/:clinicId/staff/:staffId"},
+	{"GET", "/clinic/:clinicId/appointments"},
+	{"POST", "/clinic/:clinicId/appointment/:appointmentId/reschedule"},
 }
 
 var allParams = []string{
@@ -265,6 +267,8 @@ var benchmarkRequests = []events.APIGatewayProxyRequest{
 	{HTTPMethod: "GET", Path: "/clinic/1616/staff/1717", PathParameters: map[string]string{"clinicId": "1616", "staffId": "1717"}},
 	{HTTPMethod: "PUT", Path: "/clinic/1818/staff/1919", PathParameters: map[string]string{"clinicId": "1818", "staffId": "1919"}},
 	{HTTPMethod: "DELETE", Path: "/clinic/2020/staff/2121", PathParameters: map[string]string{"clinicId": "2020", "staffId": "2121"}},
+	{HTTPMethod: "GET", Path: "/clinic/2222/appointments", PathParameters: map[string]string{"clinicId": "2222"}},
+	{HTTPMethod: "POST", Path: "/clinic/2323/appointment/2424/reschedule", PathParameters: map[string]string{"clinicId": "2323", "appointmentId": "2424"}},
 }
 
 func assertResponse(b *testing.B, resp events.APIGatewayProxyResponse, req events.APIGatewayProxyRequest) {
