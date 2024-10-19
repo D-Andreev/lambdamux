@@ -149,7 +149,6 @@ To run the example locally:
    ```
 
 ##  Benchmarks
-
  
 The following table shows the benchmark results for `lambdamux` compared to other popular routers, including those using `aws-lambda-go-api-proxy`:
 
