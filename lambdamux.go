@@ -1,3 +1,4 @@
+// Package lambdamux provides a lightweight HTTP router for AWS Lambda functions.
 package lambdamux
 
 import (
