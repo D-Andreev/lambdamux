@@ -18,10 +18,19 @@ jobs:
       with:
         go-version-file: 'go.mod'
 
+    - name: List directory contents
+      run: |
+        echo "Root directory:"
+        ls -R
+        echo "Go list:"
+        go list ./...
+
     - name: Build
       run: |
         mkdir -p build
-        go build -v -o build/lambdamux ./...
+        go build -v -o build/lambdamux .
+        # If your main package is in a subdirectory, use this instead:
+        # go build -v -o build/lambdamux ./cmd/lambdamux
 
     - name: Run tests
       run: go test -v ./...
