@@ -16,9 +16,9 @@ git tag -a v$VERSION -m "Release version $VERSION"
 git push origin v$VERSION
 
 # Build the project
-go build -v -o lambdamux .
+GOOS=linux GOARCH=amd64 go build -v -o lambdamux .
 
-# Create GitHub release
-gh release create v$VERSION ./lambdamux -t "Release v$VERSION" -n "Release notes for version $VERSION"
+# Create GitHub release with only the binary
+gh release create v$VERSION ./lambdamux -t "v$VERSION" -n "Release notes for version $VERSION"
 
 echo "Release v$VERSION created and published!"
