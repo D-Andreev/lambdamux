@@ -37,7 +37,8 @@ jobs:
       run: go test -v ./...
 
     - name: Benchmark
-      run: go test -bench=. -benchmem ./...
+      run: |
+        go test -bench=. -benchmem ./... | tee bench.txt
 
     - name: Upload benchmark results
       uses: actions/upload-artifact@v3
