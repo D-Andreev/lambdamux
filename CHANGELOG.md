@@ -8,22 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- New features that have been added
+- (Add new features here)
 
 ### Changed
-- Changes in existing functionality
+- (Add changes in existing functionality here)
 
 ### Deprecated
-- Soon-to-be removed features
+- (Add soon-to-be removed features here)
 
 ### Removed
-- Now removed features
+- (Add now removed features here)
 
 ### Fixed
-- Any bug fixes
+- (Add any bug fixes here)
 
 ### Security
-- In case of vulnerabilities
+- (Add security-related changes here)
 
 ## [0.0.1] - 2024-10-19
 
