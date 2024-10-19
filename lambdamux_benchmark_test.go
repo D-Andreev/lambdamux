@@ -1,8 +1,10 @@
-package router
+package lambdamux
 
 import (
 	"context"
 	"encoding/json"
+	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/aquasecurity/lmdrouter"
@@ -11,8 +13,10 @@ import (
 
 	fiberadapter "github.com/awslabs/aws-lambda-go-api-proxy/fiber"
 
+	chiadapter "github.com/awslabs/aws-lambda-go-api-proxy/chi"
 	ginadapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
 	"github.com/gin-gonic/gin"
+	"github.com/go-chi/chi/v5"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -41,8 +45,8 @@ var routes = []struct {
 	{"DELETE", "/user/:username"},
 }
 
-func setupLambdaHTTPRouter() *Router {
-	router := NewRouter()
+func setupLambdaMux() *LambdaMux {
+	router := NewLambdaMux()
 	for _, route := range routes {
 		router.addRoute(route.method, route.path, lambdahttpCreateHandler(route.method, route.path))
 	}
@@ -113,6 +117,42 @@ func fiberCreateHandler(method, path string) fiber.Handler {
 	}
 }
 
+func setupChiRouter() *chi.Mux {
+	r := chi.NewRouter()
+	for _, route := range routes {
+		// Convert :param to {param} for Chi router
+		chiPath := route.path
+		for _, param := range []string{"petId", "orderId", "username"} {
+			chiPath = strings.Replace(chiPath, ":"+param, "{"+param+"}", -1)
+		}
+		r.MethodFunc(route.method, chiPath, chiCreateHandler(route.method, route.path))
+	}
+	return r
+}
+
+func chiCreateHandler(method, path string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		responseBody := map[string]interface{}{
+			"message": "Handled " + method + " request for " + path,
+		}
+
+		params := make(map[string]string)
+		rctx := chi.RouteContext(r.Context())
+		if rctx != nil {
+			for i, key := range rctx.URLParams.Keys {
+				params[key] = rctx.URLParams.Values[i]
+			}
+		}
+
+		if len(params) > 0 {
+			responseBody["params"] = params
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(responseBody)
+	}
+}
+
 func setupLmdRouter() *lmdrouter.Router {
 	router := lmdrouter.NewRouter("")
 	for _, route := range routes {
@@ -177,8 +217,8 @@ func assertResponse(b *testing.B, resp events.APIGatewayProxyResponse, req event
 	}
 }
 
-func BenchmarkLambdaHTTPRouter(b *testing.B) {
-	router := setupLambdaHTTPRouter()
+func BenchmarkLambdaMux(b *testing.B) {
+	router := setupLambdaMux()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		req := benchmarkRequests[i%len(benchmarkRequests)]
@@ -218,6 +258,18 @@ func BenchmarkLmdRouter(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		req := benchmarkRequests[i%len(benchmarkRequests)]
 		resp, err := router.Handler(context.Background(), req)
+		assert.NoError(b, err)
+		assertResponse(b, resp, req)
+	}
+}
+
+func BenchmarkAWSLambdaGoAPIProxyWithChi(b *testing.B) {
+	r := setupChiRouter()
+	adapter := chiadapter.New(r)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		req := benchmarkRequests[i%len(benchmarkRequests)]
+		resp, err := adapter.ProxyWithContext(context.Background(), req)
 		assert.NoError(b, err)
 		assertResponse(b, resp, req)
 	}

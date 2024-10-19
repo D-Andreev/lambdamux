@@ -7,6 +7,7 @@ require (
 	github.com/aws/aws-lambda-go v1.47.0
 	github.com/awslabs/aws-lambda-go-api-proxy v0.16.2
 	github.com/gin-gonic/gin v1.10.0
+	github.com/go-chi/chi/v5 v5.0.8
 	github.com/gofiber/fiber/v2 v2.52.1
 	github.com/google/uuid v1.6.0
 	github.com/stretchr/testify v1.9.0
