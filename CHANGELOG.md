@@ -8,27 +8,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- (Add new features here)
 
 ### Changed
-- (Add changes in existing functionality here)
 
 ### Deprecated
-- (Add soon-to-be removed features here)
 
 ### Removed
-- (Add now removed features here)
 
 ### Fixed
-- (Add any bug fixes here)
 
 ### Security
-- (Add security-related changes here)
+
+## [0.0.2] - 2024-10-19
+
+### Added
+- GoDoc documentation for better code understanding and usage
+- Readme updates
+- Add test
 
 ## [0.0.1] - 2024-10-19
 
 ### Added
 - Initial release of lambdamux
 
-[Unreleased]: https://github.com/D-Andreev/lambdamux/compare/v0.0.1...HEAD
+[Unreleased]: https://github.com/D-Andreev/lambdamux/compare/v0.0.2...HEAD
+[0.0.2]: https://github.com/D-Andreev/lambdamux/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/D-Andreev/lambdamux/releases/tag/v0.0.1
