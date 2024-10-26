@@ -12,8 +12,8 @@
 A simple and lightweight high performance HTTP router specifically designed for AWS Lambda functions handling API Gateway requests. 
 
 ## Features
-- Fast and efficient routing with static and dynamic route support
-- Seamless handling of path parameters in routes
+- Fast and efficient routing for static routes
+- Seamless handling of path parameters in routes (e.g. `/users/:id`)
 - Simple and intuitive API for easy integration 
 
 ## Motivation
