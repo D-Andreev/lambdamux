@@ -1,9 +1,6 @@
-                _                    _           __  __            
-               | |    __ _ _ __ ___ | |__   __ _|  \/  |_   ___  __
-               | |   / _` | '_ ` _ \| '_ \ / _` | |\/| | | | \ \/ /
-               | |__| (_| | | | | | | |_) | (_| | |  | | |_| |>  < 
-               |_____\__,_|_| |_| |_|_.__/ \__,_|_|  |_|\__,_/_/\_\
-
+<p align="center"> 
+	<img src="https://github.com/user-attachments/assets/09405fba-3c4a-4dc7-ad4c-e4977360a39a" alt="LambdaMux logo">
+</p>
 <p align="center">
   <a href="https://github.com/D-Andreev/lambdamux/actions/workflows/test.yml">
     <img src="https://github.com/D-Andreev/lambdamux/actions/workflows/test.yml/badge.svg" alt="Test">
