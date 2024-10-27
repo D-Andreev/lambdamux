@@ -1,4 +1,8 @@
-<img src="https://github-production-user-asset-6210df.s3.amazonaws.com/4354425/378097448-5d1e51ca-794b-4b98-94ea-887e0687154c.svg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20241019%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20241019T152501Z&X-Amz-Expires=300&X-Amz-Signature=14d90a7bb4d3e75621080b6da7a7a8531bdc5f2ba4b690de7b098c408b16f642&X-Amz-SignedHeaders=host" alt="LambdaMux logo">
+                _                    _           __  __            
+               | |    __ _ _ __ ___ | |__   __ _|  \/  |_   ___  __
+               | |   / _` | '_ ` _ \| '_ \ / _` | |\/| | | | \ \/ /
+               | |__| (_| | | | | | | |_) | (_| | |  | | |_| |>  < 
+               |_____\__,_|_| |_| |_|_.__/ \__,_|_|  |_|\__,_/_/\_\
 
 <p align="center">
   <a href="https://github.com/D-Andreev/lambdamux/actions/workflows/test.yml">
