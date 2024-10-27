@@ -3,8 +3,8 @@ package lambdamux
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
-	"strings"
 	"testing"
 
 	"github.com/aquasecurity/lmdrouter"
@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	fiberadapter "github.com/awslabs/aws-lambda-go-api-proxy/fiber"
+	"github.com/awslabs/aws-lambda-go-api-proxy/httpadapter"
 
 	chiadapter "github.com/awslabs/aws-lambda-go-api-proxy/chi"
 	ginadapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
@@ -76,6 +77,62 @@ var routes = []struct {
 	{"POST", "/clinic/:clinicId/appointment/:appointmentId/reschedule"},
 }
 
+var routesWithBraces = []struct {
+	method string
+	path   string
+}{
+	{"POST", "/pet"},
+	{"PUT", "/pet"},
+	{"GET", "/pet/findByStatus"},
+	{"GET", "/pet/findByTags"},
+	{"GET", "/pet/{petId}"},
+	{"POST", "/pet/{petId}"},
+	{"DELETE", "/pet/{petId}"},
+	{"POST", "/pet/{petId}/uploadImage"},
+	{"GET", "/store/inventory"},
+	{"POST", "/store/order"},
+	{"GET", "/store/order/{orderId}"},
+	{"DELETE", "/store/order/{orderId}"},
+	{"POST", "/user"},
+	{"POST", "/user/createWithList"},
+	{"GET", "/user/login"},
+	{"GET", "/user/logout"},
+	{"GET", "/user/{username}"},
+	{"PUT", "/user/{username}"},
+	{"DELETE", "/user/{username}"},
+	{"GET", "/pet/{petId}/medical-history"},
+	{"POST", "/pet/{petId}/vaccination"},
+	{"GET", "/store/order/{orderId}/tracking"},
+	{"PUT", "/store/order/{orderId}/status"},
+	{"GET", "/user/{username}/preferences"},
+	{"POST", "/user/{username}/address"},
+	{"GET", "/pet/{petId}/appointments"},
+	{"POST", "/pet/{petId}/appointment"},
+	{"PUT", "/pet/{petId}/appointment/{appointmentId}"},
+	{"DELETE", "/pet/{petId}/appointment/{appointmentId}"},
+	{"GET", "/store/products"},
+	{"GET", "/store/product/{productId}"},
+	{"POST", "/store/product"},
+	{"PUT", "/store/product/{productId}"},
+	{"DELETE", "/store/product/{productId}"},
+	{"GET", "/user/{username}/orders"},
+	{"POST", "/user/{username}/review"},
+	{"GET", "/user/{username}/review/{reviewId}"},
+	{"PUT", "/user/{username}/review/{reviewId}"},
+	{"DELETE", "/user/{username}/review/{reviewId}"},
+	{"GET", "/clinic/{clinicId}"},
+	{"POST", "/clinic"},
+	{"PUT", "/clinic/{clinicId}"},
+	{"DELETE", "/clinic/{clinicId}"},
+	{"GET", "/clinic/{clinicId}/staff"},
+	{"POST", "/clinic/{clinicId}/staff"},
+	{"GET", "/clinic/{clinicId}/staff/{staffId}"},
+	{"PUT", "/clinic/{clinicId}/staff/{staffId}"},
+	{"DELETE", "/clinic/{clinicId}/staff/{staffId}"},
+	{"GET", "/clinic/{clinicId}/appointments"},
+	{"POST", "/clinic/{clinicId}/appointment/{appointmentId}/reschedule"},
+}
+
 var allParams = []string{
 	"petId", "orderId", "username", "appointmentId", "productId", "reviewId", "clinicId", "staffId",
 }
@@ -84,6 +141,19 @@ func setupLambdaMux() *LambdaMux {
 	router := NewLambdaMux()
 	for _, route := range routes {
 		router.addRoute(route.method, route.path, lambdahttpCreateHandler(route.method, route.path))
+	}
+	return router
+}
+
+func setupStandardLibrary() *http.ServeMux {
+	router := http.NewServeMux()
+	for _, route := range routesWithBraces {
+		method := route.method
+		path := route.path
+		router.HandleFunc(fmt.Sprintf("%s %s", method, path), func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			createStandardLibraryHandler(method, path)(w, r)
+		})
 	}
 	return router
 }
@@ -111,6 +181,24 @@ func lambdahttpCreateHandler(method, path string) HandlerFunc {
 			Body:       string(jsonBody),
 			Headers:    map[string]string{"Content-Type": "application/json"},
 		}, nil
+	}
+}
+
+func createStandardLibraryHandler(method, path string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		responseBody := map[string]interface{}{
+			"message": "Handled " + method + " request for " + path,
+		}
+		params := make(map[string]string)
+		for _, param := range allParams {
+			if value := r.PathValue(param); value != "" {
+				params[param] = value
+			}
+		}
+		if len(params) > 0 {
+			responseBody["params"] = params
+		}
+		json.NewEncoder(w).Encode(responseBody)
 	}
 }
 
@@ -160,13 +248,8 @@ func fiberCreateHandler(method, path string) fiber.Handler {
 
 func setupChiRouter() *chi.Mux {
 	r := chi.NewRouter()
-	for _, route := range routes {
-		// Convert :param to {param} for Chi router
-		chiPath := route.path
-		for _, param := range allParams {
-			chiPath = strings.Replace(chiPath, ":"+param, "{"+param+"}", -1)
-		}
-		r.MethodFunc(route.method, chiPath, chiCreateHandler(route.method, route.path))
+	for _, route := range routesWithBraces {
+		r.MethodFunc(route.method, route.path, chiCreateHandler(route.method, route.path))
 	}
 	return r
 }
@@ -337,6 +420,18 @@ func BenchmarkAWSLambdaGoAPIProxyWithFiber(b *testing.B) {
 func BenchmarkAWSLambdaGoAPIProxyWithChi(b *testing.B) {
 	r := setupChiRouter()
 	adapter := chiadapter.New(r)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		req := benchmarkRequests[i%len(benchmarkRequests)]
+		resp, err := adapter.ProxyWithContext(context.Background(), req)
+		assert.NoError(b, err)
+		assertResponse(b, resp, req)
+	}
+}
+
+func BenchmarkStandardLibrary(b *testing.B) {
+	router := setupStandardLibrary()
+	adapter := httpadapter.New(router)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		req := benchmarkRequests[i%len(benchmarkRequests)]
