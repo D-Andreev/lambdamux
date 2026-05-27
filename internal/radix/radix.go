@@ -107,13 +107,13 @@ func (n *Node) Insert(input string) *Node {
 		node.paramNames = getParamNames(node.value)
 		child.addEdge(node)
 		search = search[commonPrefix:]
-		newNode := NewNode(search, true)
 		if len(search) == 0 {
 			child.isComplete = true
-		} else {
-			child.addEdge(newNode)
+			return child
 		}
 
+		newNode := NewNode(search, true)
+		child.addEdge(newNode)
 		return newNode
 	}
 }

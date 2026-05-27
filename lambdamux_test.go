@@ -293,3 +293,43 @@ func createHandler(method, path string) HandlerFunc {
 		}, nil
 	}
 }
+
+func TestGETCompaniesRootRegisteredAfterNestedRoutes(t *testing.T) {
+	router := NewLambdaMux()
+
+	router.GET("/companies/salary-ranges", createHandler("GET", "/companies/salary-ranges"))
+	router.GET("/companies/median-salary", createHandler("GET", "/companies/median-salary"))
+	router.GET("/companies", createHandler("GET", "/companies"))
+
+	for _, tc := range []struct {
+		path            string
+		expectedMessage string
+	}{
+		{
+			path:            "/companies/salary-ranges",
+			expectedMessage: "Handled GET request for /companies/salary-ranges",
+		},
+		{
+			path:            "/companies/median-salary",
+			expectedMessage: "Handled GET request for /companies/median-salary",
+		},
+		{
+			path:            "/companies",
+			expectedMessage: "Handled GET request for /companies",
+		},
+	} {
+		t.Run(tc.path, func(t *testing.T) {
+			req := events.APIGatewayProxyRequest{
+				HTTPMethod: "GET",
+				Path:       tc.path,
+			}
+			resp, err := router.Handle(context.Background(), req)
+			assert.NoError(t, err)
+			assert.Equal(t, 200, resp.StatusCode, "expected registered route to match")
+
+			var body map[string]interface{}
+			assert.NoError(t, json.Unmarshal([]byte(resp.Body), &body))
+			assert.Equal(t, tc.expectedMessage, body["message"])
+		})
+	}
+}
